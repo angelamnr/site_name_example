@@ -1,0 +1,7 @@
+site_name_example.form:
+ path: '/sitename/example'
+ defaults:
+   _title: 'Site name example form'
+   _form: '\Drupal\site_name_example\Form\SiteNameForm'
+ requirements:
+   _permission: 'create page content'

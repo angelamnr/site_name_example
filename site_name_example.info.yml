@@ -1,0 +1,5 @@
+name: Site name example
+description: A form that edits your site's name
+core: 8.x
+package: Custom
+type: module
