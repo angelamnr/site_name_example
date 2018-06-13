@@ -4,9 +4,17 @@
  * Contains \Drupal\site_name_example\Form\SiteNameForm.
  */
 namespace Drupal\site_name_example\Form;
-use Drupal\Core\Form\FormBase;
+use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
-class SiteNameForm extends FormBase {
+class SiteNameForm extends ConfigFormBase {
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function getEditableConfigNames() {
+    return ['system.site'];
+  }
+
   /**
    * {@inheritdoc}
    * This sets the form machine name.
@@ -23,12 +31,12 @@ class SiteNameForm extends FormBase {
    * At the end, return everything in the form or else you'll end up with a blank page.
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    $site_name = \Drupal::config('system.site')->get('name');
+    $site_config = $this->config('system.site');
     $form['name'] = array(
       '#type' => 'textfield',
       '#title' => t('Site Name:'),
       '#required' => TRUE,
-      '#default_value' => $site_name,
+      '#default_value' => $site_config->get('name'),
     );
 
     $site_slogan = \Drupal::config('system.site')->get('slogan');
@@ -36,7 +44,7 @@ class SiteNameForm extends FormBase {
       '#type' => 'textfield',
       '#title' => t('Site Slogan:'),
       '#required' => FALSE,
-      '#default_value' => $site_slogan,
+      '#default_value' => $site_config->get('slogan'),
     );
 
     $form['actions']['submit'] = array(
@@ -69,13 +77,12 @@ class SiteNameForm extends FormBase {
    * After the value is saved, we send the user back to the front page and give them a message to know the form saved successfully.
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    foreach ($form_state->getValues() as $key => $value) {
-      if (\Drupal::config('system.site')->get($key) !== null){
-        \Drupal::configFactory()->getEditable('system.site')->set($key, $value)->save();
-      }
-    }
+    $this->config('system.site')
+      ->set('name', $form_state->getValue('name'))
+      ->set('slogan', $form_state->getValue('slogan'))
+      ->save();
     $form_state->setRedirect('<front>');
-    drupal_set_message('Updated site name');
-    return;
+    drupal_set_message('Updated site name information');
+    parent::submitForm($form, $form_state);
   }
 }
