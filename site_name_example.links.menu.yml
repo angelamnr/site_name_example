@@ -1,0 +1,6 @@
+site_name_example.link:
+  title: 'Edit Site Name'
+  description: 'Site name editor'
+  parent: main
+  menu_name: main
+  route_name: site_name_example.form
