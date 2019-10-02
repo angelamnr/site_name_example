@@ -4,9 +4,38 @@
  * Contains \Drupal\site_name_example\Form\SiteNameForm.
  */
 namespace Drupal\site_name_example\Form;
+
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Messenger\MessengerInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+
+/**
+ * Example form that sets site name.
+ */
 class SiteNameForm extends ConfigFormBase {
+
+  /**
+   * @var \Drupal\Core\Messenger\MessengerInterface
+   */
+  protected $messenger;
+
+  /**
+   * SiteNameForm constructor
+   * @param \Drupal\Core\Messenger\MessengerInterface $messenger
+   */
+  public function __construct(MessengerInterface $messenger) {
+    $this->messenger = $messenger;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('messenger')
+    );
+  }
 
   /**
    * {@inheritdoc}
@@ -39,7 +68,7 @@ class SiteNameForm extends ConfigFormBase {
       '#default_value' => $site_config->get('name'),
     );
 
-    $site_slogan = \Drupal::config('system.site')->get('slogan');
+    $site_slogan = $site_config->get('slogan');
     $form['slogan'] = array(
       '#type' => 'textfield',
       '#title' => t('Site Slogan:'),
@@ -82,7 +111,7 @@ class SiteNameForm extends ConfigFormBase {
       ->set('slogan', $form_state->getValue('slogan'))
       ->save();
     $form_state->setRedirect('<front>');
-    drupal_set_message('Updated site name information');
+    $this->messenger->addMessage('Updated site name information');
     parent::submitForm($form, $form_state);
   }
 }
